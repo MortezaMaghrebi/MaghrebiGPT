@@ -743,6 +743,76 @@
             outline: none;
             border-color: var(--primary-color);
         }
+		
+		
+		/* Preview Panel - سمت راست */
+		.preview-panel {
+			position: fixed;
+			top: 0;
+			right: -400px; /* مخفی در ابتدا */
+			width: 400px;
+			height: 100vh;
+			background: white;
+			border-left: 1px solid var(--border-color);
+			box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+			z-index: 1000;
+			display: flex;
+			flex-direction: column;
+			transition: right 0.3s ease;
+			font-family: 'Segoe UI', sans-serif;
+		}
+		
+		.preview-panel.open {
+			right: 0;
+		}
+		
+		.preview-header {
+			padding: 12px 16px;
+			background: var(--primary-color);
+			color: white;
+			font-weight: 600;
+			font-size: 14px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		
+		.close-preview-btn {
+			background: none;
+			border: none;
+			color: white;
+			font-size: 18px;
+			cursor: pointer;
+			width: 32px;
+			height: 32px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 4px;
+		}
+		
+		.close-preview-btn:hover {
+			background: rgba(255, 255, 255, 0.2);
+		}
+		
+		.preview-resizer {
+			width: 100%;
+			height: 4px;
+			background: #e5e5e5;
+			cursor: ns-resize;
+		}
+		
+		.preview-content {
+			flex: 1;
+			overflow: hidden;
+		}
+		
+		#preview-iframe {
+			width: 100%;
+			height: 100%;
+			border: none;
+			background: white;
+		}
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
@@ -960,7 +1030,18 @@
             </div>
         </div>
     </div>
-
+	<div class="preview-panel" id="preview-panel">
+		<div class="preview-header">
+			<span>پیش‌نمایش</span>
+			<button class="close-preview-btn" id="close-preview-btn">
+				<i class="fas fa-times"></i>
+			</button>
+		</div>
+		<div class="preview-resizer" id="preview-resizer"></div>
+		<div class="preview-content">
+			<iframe id="preview-iframe" sandbox="allow-scripts allow-modals allow-forms allow-popups"></iframe>
+		</div>
+	</div>
     <script>
         class MaghrebiGPT {
             constructor() {
@@ -986,6 +1067,37 @@
                     breaks: true,
                     gfm: true
                 });
+				
+				// بستن پنل
+				document.getElementById('close-preview-btn').addEventListener('click', () => {
+					document.getElementById('preview-panel').classList.remove('open');
+					document.getElementById('preview-iframe').src = 'about:blank';
+				});
+				
+				// Resizer (کشیدن برای تغییر ارتفاع header)
+				let isResizing = false;
+				const resizer = document.getElementById('preview-resizer');
+				
+				resizer.addEventListener('mousedown', (e) => {
+					isResizing = true;
+					document.body.style.userSelect = 'none';
+				});
+				
+				document.addEventListener('mousemove', (e) => {
+					if (!isResizing) return;
+					const panel = document.getElementById('preview-panel');
+					const headerHeight = e.clientY;
+					if (headerHeight > 100 && headerHeight < window.innerHeight - 100) {
+						panel.style.top = '0';
+						panel.style.height = '100vh';
+						// اگر خواستی فقط header تغییر کنه، اینجا تنظیم کن
+					}
+				});
+				
+				document.addEventListener('mouseup', () => {
+					isResizing = false;
+					document.body.style.userSelect = '';
+				});
             }
 
             generateId() {
@@ -1372,7 +1484,7 @@
 								previewBtn.innerHTML = '<i class="fas fa-eye"></i> Preview';
 								previewBtn.onclick = (e) => {
 									e.stopPropagation();
-									self.showHTMLPreview(codeText, wrapper);
+									self.showHTMLPreview(codeText);
 								};
 								actions.appendChild(previewBtn);
 							}
@@ -1502,54 +1614,24 @@
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
 			
-			showHTMLPreview(htmlCode, wrapper) {
-				// حذف preview قبلی
-				const existing = wrapper.querySelector('.code-preview-container');
-				if (existing) existing.remove();
+			showHTMLPreview(htmlCode) {
+				const panel = document.getElementById('preview-panel');
+				const iframe = document.getElementById('preview-iframe');
 			
-				// ایجاد container
-				const container = document.createElement('div');
-				container.className = 'code-preview-container';
+				// باز کردن پنل
+				panel.classList.add('open');
 			
-				// ایجاد iframe
-				const iframe = document.createElement('iframe');
-				iframe.className = 'code-preview-iframe';
-				iframe.sandbox = 'allow-scripts allow-modals allow-forms allow-popups';
-			
-				container.appendChild(iframe);
-				wrapper.appendChild(container);
-			
-				// استفاده از Blob URL برای جلوگیری از CORS
+				// ایجاد Blob URL
 				const blob = new Blob([htmlCode], { type: 'text/html' });
 				const url = URL.createObjectURL(blob);
 				iframe.src = url;
 			
-				// تنظیم ارتفاع خودکار
+				// پاکسازی URL بعد از بارگذاری
 				iframe.onload = () => {
-					try {
-						// حالا دسترسی مجاز است چون same-origin است
-						const doc = iframe.contentDocument || iframe.contentWindow.document;
-						const body = doc.body;
-						const html = doc.documentElement;
-						const height = Math.max(
-							body.scrollHeight, body.offsetHeight,
-							html.clientHeight, html.scrollHeight, html.offsetHeight
-						);
-						iframe.style.height = Math.min(height + 20, 600) + 'px';
-			
-						// آزادسازی URL بعد از بارگذاری
-						URL.revokeObjectURL(url);
-					} catch (e) {
-						iframe.style.height = '300px';
-					}
-				};
-			
-				// در صورت خطا
-				iframe.onerror = () => {
-					iframe.style.height = '300px';
 					URL.revokeObjectURL(url);
 				};
 			}
+			
 			
         }
 
