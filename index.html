@@ -819,23 +819,20 @@
 			position: absolute;
 			left: 0;
 			top: 0;
-			width: 6px;
+			width: 10px; /* کمی بیشتر برای راحتی */
 			height: 100%;
 			background: transparent;
 			cursor: ew-resize;
 			z-index: 1001;
 			transition: background 0.2s;
+			margin-left: -5px; /* وسط کردن handle */
 		}
 		
-		.preview-resize-handle:hover {
+		.preview-resize-handle:hover,
+		.preview-panel.resizing .preview-resize-handle {
 			background: var(--primary-color);
 		}
 		
-		/* وقتی در حال resize هستیم */
-		.preview-panel.resizing {
-			transition: none;
-		}
-
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .sidebar {
@@ -1666,20 +1663,26 @@
 				let isResizing = false;
 				let startX, startWidth;
 			
-				handle.addEventListener('mousedown', (e) => {
+				const startResize = (e) => {
+					if (e.button !== 0) return; // فقط کلیک چپ
+			
 					isResizing = true;
 					startX = e.clientX;
 					startWidth = panel.offsetWidth;
 					panel.classList.add('resizing');
 					document.body.style.cursor = 'ew-resize';
 					document.body.style.userSelect = 'none';
-					e.preventDefault();
-				});
 			
-				document.addEventListener('mousemove', (e) => {
+					// مهم: capture pointer
+					handle.setPointerCapture(e.pointerId);
+			
+					e.preventDefault();
+				};
+			
+				const doResize = (e) => {
 					if (!isResizing) return;
 			
-					const diff = startX - e.clientX; // منفی = بزرگ شدن
+					const diff = startX - e.clientX;
 					let newWidth = startWidth + diff;
 			
 					// محدودیت عرض
@@ -1688,16 +1691,29 @@
 					newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
 			
 					panel.style.width = `${newWidth}px`;
-				});
+				};
 			
-				document.addEventListener('mouseup', () => {
-					if (isResizing) {
-						isResizing = false;
-						panel.classList.remove('resizing');
-						document.body.style.cursor = '';
-						document.body.style.userSelect = '';
-					}
-				});
+				const stopResize = () => {
+					if (!isResizing) return;
+			
+					isResizing = false;
+					panel.classList.remove('resizing');
+					document.body.style.cursor = '';
+					document.body.style.userSelect = '';
+			
+					// آزاد کردن capture
+					handle.releasePointerCapture?.(handle.pointerId);
+				};
+			
+				// استفاده از pointer events
+				handle.addEventListener('pointerdown', startResize);
+				handle.addEventListener('pointermove', doResize);
+				handle.addEventListener('pointerup', stopResize);
+				handle.addEventListener('pointercancel', stopResize);
+				handle.addEventListener('pointerleave', stopResize);
+			
+				// backup برای document
+				document.addEventListener('pointerup', stopResize);
 			}
 			
 			
