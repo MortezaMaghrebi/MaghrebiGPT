@@ -1502,17 +1502,15 @@
             }
 			
 			showHTMLPreview(htmlCode, wrapper) {
-				// اگر قبلاً preview وجود داره، حذفش کن
+				// حذف preview قبلی
 				const existing = wrapper.querySelector('.code-preview-container');
-				if (existing) {
-					existing.remove();
-				}
+				if (existing) existing.remove();
 			
 				// ایجاد container
 				const container = document.createElement('div');
 				container.className = 'code-preview-container';
 			
-				// ایجاد iframe با sandbox برای امنیت
+				// ایجاد iframe
 				const iframe = document.createElement('iframe');
 				iframe.className = 'code-preview-iframe';
 				iframe.sandbox = 'allow-scripts allow-modals allow-forms allow-popups';
@@ -1520,24 +1518,38 @@
 				container.appendChild(iframe);
 				wrapper.appendChild(container);
 			
-				// نوشتن کد در iframe
-				const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-				iframeDoc.open();
-				iframeDoc.write(htmlCode);
-				iframeDoc.close();
+				// استفاده از Blob URL برای جلوگیری از CORS
+				const blob = new Blob([htmlCode], { type: 'text/html' });
+				const url = URL.createObjectURL(blob);
+				iframe.src = url;
 			
 				// تنظیم ارتفاع خودکار
 				iframe.onload = () => {
 					try {
-						const body = iframe.contentDocument.body;
-						const html = iframe.contentDocument.documentElement;
-						const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+						// حالا دسترسی مجاز است چون same-origin است
+						const doc = iframe.contentDocument || iframe.contentWindow.document;
+						const body = doc.body;
+						const html = doc.documentElement;
+						const height = Math.max(
+							body.scrollHeight, body.offsetHeight,
+							html.clientHeight, html.scrollHeight, html.offsetHeight
+						);
 						iframe.style.height = Math.min(height + 20, 600) + 'px';
+			
+						// آزادسازی URL بعد از بارگذاری
+						URL.revokeObjectURL(url);
 					} catch (e) {
 						iframe.style.height = '300px';
 					}
 				};
+			
+				// در صورت خطا
+				iframe.onerror = () => {
+					iframe.style.height = '300px';
+					URL.revokeObjectURL(url);
+				};
 			}
+			
         }
 
         // راه‌اندازی چت
