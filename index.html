@@ -1324,18 +1324,16 @@
 					const panel = document.getElementById('preview-panel');
 					const iframe = document.getElementById('preview-iframe');
 					
-					console.log('Close button clicked'); // برای دیباگ
-					
+					// 1. حذف کلاس open
 					panel.classList.remove('open');
+					
+					// 2. بازگرداندن عرض به مقدار اولیه
+					panel.style.width = '400px'; // یا 'auto' اگر می‌خواهید ریست کامل شود
+					
+					// 3. پاک کردن محتوای iframe
 					iframe.src = 'about:blank';
 					
-					// مطمئن شو که واقعاً بسته شده
-					setTimeout(() => {
-						panel.style.display = 'none';
-						setTimeout(() => {
-							panel.style.display = 'flex';
-						}, 10);
-					}, 300);
+					console.log('Preview panel closed and reset.');
 				});
                 
                 // منوی موبایل
@@ -1699,7 +1697,7 @@
                             // --- دکمه Preview برای HTML ---
                             const isHTML = codeBlock.classList.contains('language-html') || codeBlock.classList.contains('language-xml');
                             const codeText = codeBlock.textContent.trim();
-                            const isFullHTML = codeText.match(/^<!DOCTYPE html>|^<html|^<div|^<body/i);
+                            const isFullHTML =  codeText.match(/^<!DOCTYPE html>|^<html|^<div|^<body/i);
                 
                             if (isHTML && isFullHTML) {
                                 const previewBtn = document.createElement('button');
@@ -1837,28 +1835,25 @@
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
             
-            showHTMLPreview(htmlCode) {
-                const panel = document.getElementById('preview-panel');
-                const iframe = document.getElementById('preview-iframe');
-            
-                // باز کردن پنل
-                panel.classList.add('open');
-            
-                // تنظیم عرض اولیه
-                if (!panel.style.width || panel.style.width === '400px') {
-                    panel.style.width = '500px';
-                }
-            
-                // ایجاد Blob و بارگذاری
-                const blob = new Blob([htmlCode], { type: 'text/html' });
-                const url = URL.createObjectURL(blob);
-                iframe.src = url;
-            
-                // پاکسازی URL بعد از بارگذاری
-                iframe.onload = () => {
-                    URL.revokeObjectURL(url);
-                };
-            }
+			showHTMLPreview(htmlCode) {
+				const panel = document.getElementById('preview-panel');
+				const iframe = document.getElementById('preview-iframe');
+				
+				// باز کردن پنل
+				panel.classList.add('open');
+				
+				// تنظیم عرض اولیه (مهم!)
+				panel.style.width = '400px'; // یا 500px بسته به طراحی شما
+				
+				// ایجاد Blob و بارگذاری
+				const blob = new Blob([htmlCode], { type: 'text/html' });
+				const url = URL.createObjectURL(blob);
+				iframe.src = url;
+				
+				iframe.onload = () => {
+					URL.revokeObjectURL(url);
+				};
+			}
             
             setupPreviewResize() {
 				const panel = document.getElementById('preview-panel');
