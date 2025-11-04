@@ -1049,6 +1049,7 @@
             </div>
         </div>
     </div>
+	
 	<div class="preview-panel" id="preview-panel">
 		<div class="preview-resize-handle" id="preview-resize-handle"></div>
 		<div class="preview-header">
@@ -1057,11 +1058,11 @@
 				<i class="fas fa-times"></i>
 			</button>
 		</div>
-		<div class="preview-resizer" id="preview-resizer"></div>
 		<div class="preview-content">
 			<iframe id="preview-iframe" sandbox="allow-scripts allow-modals allow-forms allow-popups"></iframe>
 		</div>
 	</div>
+	
     <script>
         class MaghrebiGPT {
             constructor() {
@@ -1188,6 +1189,26 @@
 
                 // فokus خودکار روی اینپوت
                 document.getElementById('chat-input').focus();
+				
+				document.getElementById('close-preview-btn').addEventListener('click', () => {
+					const panel = document.getElementById('preview-panel');
+					const iframe = document.getElementById('preview-iframe');
+				
+					// 1. مخفی کردن پنل
+					panel.classList.remove('open');
+				
+					// 2. پاک کردن محتوای iframe
+					iframe.src = 'about:blank';
+				
+					// 3. پاکسازی کامل DOM و حافظه (بعد از انیمیشن)
+					setTimeout(() => {
+						iframe.src = '';
+						if (iframe.contentDocument) {
+							iframe.contentDocument.write('');
+							iframe.contentDocument.close();
+						}
+					}, 350); // کمی بیشتر از زمان انیمیشن (0.3s)
+				});
             }
 
             toggleTextDirection() {
@@ -1655,16 +1676,17 @@
 				// باز کردن پنل
 				panel.classList.add('open');
 			
-				// تنظیم عرض اولیه (اگر اولین بار هست)
+				// تنظیم عرض اولیه
 				if (!panel.style.width || panel.style.width === '400px') {
 					panel.style.width = '500px';
 				}
 			
-				// ایجاد Blob URL
+				// ایجاد Blob و بارگذاری
 				const blob = new Blob([htmlCode], { type: 'text/html' });
 				const url = URL.createObjectURL(blob);
 				iframe.src = url;
 			
+				// پاکسازی URL بعد از بارگذاری
 				iframe.onload = () => {
 					URL.revokeObjectURL(url);
 				};
