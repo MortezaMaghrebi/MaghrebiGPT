@@ -1130,13 +1130,10 @@
             async sendMessage() {
                 const input = document.getElementById('chat-input');
                 const message = this.trimSpaces(input.value); // حذف فضاهای اضافی
-                let apiKey = document.getElementById('api-key').value.trim();
+                let apiKey = '';
 
                 if (!message) return;
-                if (!apiKey) {
-                    //alert('لطفاً کلید API خود را وارد کنید');
-                }
-
+                
                 // غیرفعال کردن دکمه ارسال
                 document.getElementById('send-button').disabled = true;
 
