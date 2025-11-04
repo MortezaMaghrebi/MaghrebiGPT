@@ -127,7 +127,7 @@
         .user-profile {
             display: flex;
             align-items: center;
-            gap: 0px;
+            gap: 12px;
             padding: 8px;
             border-radius: 6px;
             cursor: pointer;
@@ -739,9 +739,6 @@
             چت جدید
         </button>
         
-        <div class="api-key-container">
-            <input type="password" class="api-key-input" id="api-key" placeholder="کلید API Groq">
-        </div>
         
         <div class="chat-history" id="chat-history">
             <!-- تاریخچه چت ها به صورت داینامیک ساخته می شود -->
@@ -763,11 +760,11 @@
         <div class="chat-header">
             <div class="header-controls">
                 <div class="model-selector" id="model-selector">
-                    <i class="fas fa-robot"></i>
-                    <span>Llama 3.1 8B</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="direction-toggle" id="direction-toggle">
+					<i class="fas fa-robot"></i>
+					<span>OpenAI GPT OSS 120B</span>  <!-- نام مدل رو بروز کن -->
+					<i class="fas fa-chevron-down"></i>
+				</div>
+				<div class="direction-toggle" id="direction-toggle">
                     <i class="fas fa-text-width"></i>
                     <span>راست‌چین</span>
                 </div>
@@ -815,7 +812,7 @@
             </div>
             <div class="model-modal-body">
                 <!-- Production Models -->
-				<div class="model-option" data-model="openai/gpt-oss-120b">
+				<div class="model-option active" data-model="openai/gpt-oss-120b">
                     <div class="model-icon" style="background-color: #8b5cf6; color: white;">
                         <i class="fas fa-database"></i>
                     </div>
@@ -831,7 +828,7 @@
                     <div class="model-info">سریع OSS • 1000 T/S • $0.075/M</div>
                 </div>
                
-                <div class="model-option active" data-model="llama-3.1-8b-instant">
+                <div class="model-option" data-model="llama-3.1-8b-instant">
                     <div class="model-icon" style="background-color: #10a37f; color: white;">
                         <i class="fas fa-bolt"></i>
                     </div>
