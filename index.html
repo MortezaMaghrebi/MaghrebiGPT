@@ -358,6 +358,23 @@
             border-color: white;
         }
         
+		/* Code Language Label */
+		.code-language-label {
+			position: absolute;
+			top: 8px;
+			right: 8px;
+			background: var(--code-bg);
+			color: black;
+			font-size: 11px;
+			font-weight: 600;
+			padding: 2px 6px;
+			border-radius: 3px;
+			text-transform: uppercase;
+			z-index: 1;
+			pointer-events: none;
+			font-family: 'Courier New', monospace;
+		}
+		
 		/* Preview Button */
 		.code-preview-btn {
 			background: #10a37f;
@@ -475,16 +492,17 @@
             text-align: left;
         }
         
-        .message-content pre {
-            background-color: var(--code-bg);
-            border: 1px solid var(--code-border);
-            border-radius: 6px;
-            padding: 40px 10px 10px 10px;
-            overflow-x: auto;
-            margin: 1em 0;
-            direction: ltr;
-            text-align: left;
-        }
+		.message-content pre {
+			background-color: var(--code-bg);
+			border: 1px solid var(--code-border);
+			border-radius: 6px;
+			padding: 40px 10px 10px 10px;
+			overflow-x: auto;
+			margin: 1em 0;
+			direction: ltr;
+			text-align: left;
+			position: relative; /* اضافه شد */
+		}
         
         .message-content pre code {
             background: none;
@@ -1303,58 +1321,71 @@
                 
                 // اضافه کردن دکمه‌های کپی و دانلود برای بلوک‌های کد
                 if (renderMarkdown) {
-                    setTimeout(() => {
-                        messageDiv.querySelectorAll('pre').forEach((preBlock) => {
-                            const wrapper = document.createElement('div');
-                            wrapper.className = 'code-block-wrapper';
-                            
-                            const actions = document.createElement('div');
-                            actions.className = 'code-block-actions';
-                            actions.innerHTML = `
-                                <button class="code-action-btn" data-action="copy-code">
-                                    <i class="fas fa-copy"></i>
-                                    کپی
-                                </button>
-                                <button class="code-action-btn" data-action="download-code">
-                                    <i class="fas fa-download"></i>
-                                    دانلود
-                                </button>
-                            `;
-                            
-                            preBlock.parentNode.insertBefore(wrapper, preBlock);
-                            wrapper.appendChild(preBlock);
-                            wrapper.appendChild(actions);
-                        });
-                        
-                        // highlight کدها
-                        messageDiv.querySelectorAll('pre code').forEach((block) => {
-                            hljs.highlightElement(block);
-							// تشخیص کدهای HTML کامل و اضافه کردن دکمه Preview
-							if (block.classList.contains('language-html') || block.classList.contains('language-xml')) {
-								const codeText = block.textContent.trim();
-								
-								// فقط اگر کد با <html> یا <div> یا <body> شروع بشه
-								if (codeText.match(/^<!DOCTYPE html>|^<html|^<div|^<body/i)) {
-									const previewBtn = document.createElement('button');
-									previewBtn.className = 'code-action-btn code-preview-btn';
-									previewBtn.innerHTML = '<i class="fas fa-eye"></i> Preview';
-									previewBtn.onclick = (e) => {
-										e.stopPropagation();
-										this.showHTMLPreview(codeText, wrapper);
-									};
-									
-									actions.appendChild(previewBtn);
-								}
+					setTimeout(() => {
+						const self = this; // برای دسترسی به this در onclick
+				
+						messageDiv.querySelectorAll('pre').forEach((preBlock) => {
+							// ایجاد wrapper و actions
+							const wrapper = document.createElement('div');
+							wrapper.className = 'code-block-wrapper';
+				
+							const actions = document.createElement('div');
+							actions.className = 'code-block-actions';
+							actions.innerHTML = `
+								<button class="code-action-btn" data-action="copy-code">
+									<i class="fas fa-copy"></i> کپی
+								</button>
+								<button class="code-action-btn" data-action="download-code">
+									<i class="fas fa-download"></i> دانلود
+								</button>
+							`;
+				
+							// قرار دادن pre داخل wrapper
+							preBlock.parentNode.insertBefore(wrapper, preBlock);
+							wrapper.appendChild(preBlock);
+							wrapper.appendChild(actions);
+				
+							// پیدا کردن code داخل pre
+							const codeBlock = preBlock.querySelector('code');
+							if (!codeBlock) return;
+				
+							// --- نمایش زبان کد ---
+							const languageMatch = codeBlock.className.match(/language-(\w+)/);
+							if (languageMatch && !preBlock.querySelector('.code-language-label')) {
+								const language = languageMatch[1].toUpperCase();
+								const label = document.createElement('div');
+								label.className = 'code-language-label';
+								label.textContent = language;
+								preBlock.style.position = 'relative';
+								preBlock.insertBefore(label, preBlock.firstChild);
 							}
-                        });
-                        
-                        // اضافه کردن event listeners برای دکمه‌ها
-                        this.addActionEventListeners(messageDiv);
-                    }, 100);
-                } else {
-                    // اضافه کردن event listeners برای دکمه‌ها
-                    this.addActionEventListeners(messageDiv);
-                }
+				
+							// --- دکمه Preview برای HTML ---
+							const isHTML = codeBlock.classList.contains('language-html') || codeBlock.classList.contains('language-xml');
+							const codeText = codeBlock.textContent.trim();
+							const isFullHTML = codeText.match(/^<!DOCTYPE html>|^<html|^<div|^<body/i);
+				
+							if (isHTML && isFullHTML) {
+								const previewBtn = document.createElement('button');
+								previewBtn.className = 'code-action-btn code-preview-btn';
+								previewBtn.innerHTML = '<i class="fas fa-eye"></i> Preview';
+								previewBtn.onclick = (e) => {
+									e.stopPropagation();
+									self.showHTMLPreview(codeText, wrapper);
+								};
+								actions.appendChild(previewBtn);
+							}
+				
+							// highlight کد
+							hljs.highlightElement(codeBlock);
+						});
+				
+						// اضافه کردن event listenerها
+						this.addActionEventListeners(messageDiv);
+					}, 100);
+				} else {
+					this.addActionEventListeners(messageDiv);
+				}
             }
 
             addActionEventListeners(messageDiv) {
