@@ -1091,8 +1091,21 @@
 				
 				// بستن پنل
 				document.getElementById('close-preview-btn').addEventListener('click', () => {
-					document.getElementById('preview-panel').classList.remove('open');
-					document.getElementById('preview-iframe').src = 'about:blank';
+					const panel = document.getElementById('preview-panel');
+					const iframe = document.getElementById('preview-iframe');
+				
+					// 1. مخفی کردن پنل
+					panel.classList.remove('open');
+				
+					// 2. پاک کردن محتوای iframe
+					iframe.src = 'about:blank';
+				
+					// 3. پاک کردن DOM (اختیاری اما بهتر)
+					setTimeout(() => {
+						iframe.src = '';
+						iframe.contentDocument?.write('');
+						iframe.contentDocument?.close();
+					}, 300);
 				});
 				
 				// Resizer (کشیدن برای تغییر ارتفاع header)
