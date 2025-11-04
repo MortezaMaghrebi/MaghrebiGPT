@@ -1317,24 +1317,25 @@
                 // فokus خودکار روی اینپوت
                 document.getElementById('chat-input').focus();
                 
-                document.getElementById('close-preview-btn').addEventListener('click', () => {
+				document.getElementById('close-preview-btn').addEventListener('click', (e) => {
+					e.preventDefault();
+					e.stopPropagation();
+					
 					const panel = document.getElementById('preview-panel');
 					const iframe = document.getElementById('preview-iframe');
-				
-					// 1. مخفی کردن پنل
+					
+					console.log('Close button clicked'); // برای دیباگ
+					
 					panel.classList.remove('open');
-				
-					// 2. پاک کردن محتوای iframe
 					iframe.src = 'about:blank';
-				
-					// 3. پاکسازی کامل DOM و حافظه (بعد از انیمیشن)
+					
+					// مطمئن شو که واقعاً بسته شده
 					setTimeout(() => {
-						iframe.src = '';
-						if (iframe.contentDocument) {
-							iframe.contentDocument.write('');
-							iframe.contentDocument.close();
-						}
-					}, 350); // کمی بیشتر از زمان انیمیشن (0.3s)
+						panel.style.display = 'none';
+						setTimeout(() => {
+							panel.style.display = 'flex';
+						}, 10);
+					}, 300);
 				});
                 
                 // منوی موبایل
