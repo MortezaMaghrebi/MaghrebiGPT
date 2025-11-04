@@ -814,6 +814,28 @@
 			background: white;
 		}
 
+		/* Handle برای تغییر اندازه */
+		.preview-resize-handle {
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 6px;
+			height: 100%;
+			background: transparent;
+			cursor: ew-resize;
+			z-index: 1001;
+			transition: background 0.2s;
+		}
+		
+		.preview-resize-handle:hover {
+			background: var(--primary-color);
+		}
+		
+		/* وقتی در حال resize هستیم */
+		.preview-panel.resizing {
+			transition: none;
+		}
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .sidebar {
@@ -1031,6 +1053,7 @@
         </div>
     </div>
 	<div class="preview-panel" id="preview-panel">
+		<div class="preview-resize-handle" id="preview-resize-handle"></div>
 		<div class="preview-header">
 			<span>پیش‌نمایش</span>
 			<button class="close-preview-btn" id="close-preview-btn">
@@ -1051,6 +1074,7 @@
                 this.currentConversationId = this.generateId();
                 this.textDirection = 'rtl'; // پیش‌فرض راست‌چین
                 this.initializeEventListeners();
+				this.setupPreviewResize();
                 this.updateModelSelector();
                 this.loadConversations();
                 this.renderConversationHistory();
@@ -1621,15 +1645,59 @@
 				// باز کردن پنل
 				panel.classList.add('open');
 			
+				// تنظیم عرض اولیه (اگر اولین بار هست)
+				if (!panel.style.width || panel.style.width === '400px') {
+					panel.style.width = '500px';
+				}
+			
 				// ایجاد Blob URL
 				const blob = new Blob([htmlCode], { type: 'text/html' });
 				const url = URL.createObjectURL(blob);
 				iframe.src = url;
 			
-				// پاکسازی URL بعد از بارگذاری
 				iframe.onload = () => {
 					URL.revokeObjectURL(url);
 				};
+			}
+			
+			setupPreviewResize() {
+				const panel = document.getElementById('preview-panel');
+				const handle = document.getElementById('preview-resize-handle');
+				let isResizing = false;
+				let startX, startWidth;
+			
+				handle.addEventListener('mousedown', (e) => {
+					isResizing = true;
+					startX = e.clientX;
+					startWidth = panel.offsetWidth;
+					panel.classList.add('resizing');
+					document.body.style.cursor = 'ew-resize';
+					document.body.style.userSelect = 'none';
+					e.preventDefault();
+				});
+			
+				document.addEventListener('mousemove', (e) => {
+					if (!isResizing) return;
+			
+					const diff = startX - e.clientX; // منفی = بزرگ شدن
+					let newWidth = startWidth + diff;
+			
+					// محدودیت عرض
+					const minWidth = 300;
+					const maxWidth = Math.min(800, window.innerWidth * 0.6);
+					newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+			
+					panel.style.width = `${newWidth}px`;
+				});
+			
+				document.addEventListener('mouseup', () => {
+					if (isResizing) {
+						isResizing = false;
+						panel.classList.remove('resizing');
+						document.body.style.cursor = '';
+						document.body.style.userSelect = '';
+					}
+				});
 			}
 			
 			
