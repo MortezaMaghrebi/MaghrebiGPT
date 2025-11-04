@@ -358,6 +358,42 @@
             border-color: white;
         }
         
+		/* Preview Button */
+		.code-preview-btn {
+			background: #10a37f;
+			color: white;
+			border: none;
+			border-radius: 4px;
+			padding: 4px 8px;
+			font-size: 12px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			margin-left: 4px;
+			transition: all 0.2s;
+		}
+		
+		.code-preview-btn:hover {
+			background: #0d8c6c;
+		}
+		
+		/* Preview Container */
+		.code-preview-container {
+			margin-top: 12px;
+			border: 1px solid var(--border-color);
+			border-radius: 6px;
+			overflow: hidden;
+			box-shadow: var(--shadow);
+		}
+		
+		.code-preview-iframe {
+			width: 100%;
+			height: 300px;
+			border: none;
+			background: white;
+		}
+
         /* Markdown Styling */
         .message-content h1, 
         .message-content h2, 
@@ -1293,6 +1329,23 @@
                         // highlight کدها
                         messageDiv.querySelectorAll('pre code').forEach((block) => {
                             hljs.highlightElement(block);
+							// تشخیص کدهای HTML کامل و اضافه کردن دکمه Preview
+							if (block.classList.contains('language-html') || block.classList.contains('language-xml')) {
+								const codeText = block.textContent.trim();
+								
+								// فقط اگر کد با <html> یا <div> یا <body> شروع بشه
+								if (codeText.match(/^<!DOCTYPE html>|^<html|^<div|^<body/i)) {
+									const previewBtn = document.createElement('button');
+									previewBtn.className = 'code-action-btn code-preview-btn';
+									previewBtn.innerHTML = '<i class="fas fa-eye"></i> Preview';
+									previewBtn.onclick = (e) => {
+										e.stopPropagation();
+										this.showHTMLPreview(codeText, wrapper);
+									};
+									
+									actions.appendChild(previewBtn);
+								}
+							}
                         });
                         
                         // اضافه کردن event listeners برای دکمه‌ها
@@ -1416,6 +1469,44 @@
                 const messagesContainer = document.getElementById('chat-messages');
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
+			
+			showHTMLPreview(htmlCode, wrapper) {
+				// اگر قبلاً preview وجود داره، حذفش کن
+				const existing = wrapper.querySelector('.code-preview-container');
+				if (existing) {
+					existing.remove();
+				}
+			
+				// ایجاد container
+				const container = document.createElement('div');
+				container.className = 'code-preview-container';
+			
+				// ایجاد iframe با sandbox برای امنیت
+				const iframe = document.createElement('iframe');
+				iframe.className = 'code-preview-iframe';
+				iframe.sandbox = 'allow-scripts allow-modals allow-forms allow-popups';
+			
+				container.appendChild(iframe);
+				wrapper.appendChild(container);
+			
+				// نوشتن کد در iframe
+				const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+				iframeDoc.open();
+				iframeDoc.write(htmlCode);
+				iframeDoc.close();
+			
+				// تنظیم ارتفاع خودکار
+				iframe.onload = () => {
+					try {
+						const body = iframe.contentDocument.body;
+						const html = iframe.contentDocument.documentElement;
+						const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+						iframe.style.height = Math.min(height + 20, 600) + 'px';
+					} catch (e) {
+						iframe.style.height = '300px';
+					}
+				};
+			}
         }
 
         // راه‌اندازی چت
