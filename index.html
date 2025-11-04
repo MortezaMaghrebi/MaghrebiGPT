@@ -1861,63 +1861,58 @@
             }
             
             setupPreviewResize() {
-                const panel = document.getElementById('preview-panel');
-                const handle = document.getElementById('preview-resize-handle');
-                let isResizing = false;
-                let startX, startWidth;
-            
-                const startResize = (e) => {
-                    if (e.button !== 0) return; // فقط کلیک چپ
-            
-                    isResizing = true;
-                    startX = e.clientX;
-                    startWidth = panel.offsetWidth;
-                    panel.classList.add('resizing');
-                    document.body.style.cursor = 'ew-resize';
-                    document.body.style.userSelect = 'none';
-            
-                    // مهم: capture pointer
-                    handle.setPointerCapture(e.pointerId);
-            
-                    e.preventDefault();
-                };
-            
-                const doResize = (e) => {
-                    if (!isResizing) return;
-            
-                    const diff = startX - e.clientX;
-                    let newWidth = startWidth + diff;
-            
-                    // محدودیت عرض
-                    const minWidth = 300;
-                    const maxWidth = Math.min(800, window.innerWidth * 0.6);
-                    newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
-            
-                    panel.style.width = `${newWidth}px`;
-                };
-            
-                const stopResize = () => {
-                    if (!isResizing) return;
-            
-                    isResizing = false;
-                    panel.classList.remove('resizing');
-                    document.body.style.cursor = '';
-                    document.body.style.userSelect = '';
-            
-                    // آزاد کردن capture
-                    handle.releasePointerCapture?.(handle.pointerId);
-                };
-            
-                // استفاده از pointer events
-                handle.addEventListener('pointerdown', startResize);
-                handle.addEventListener('pointermove', doResize);
-                handle.addEventListener('pointerup', stopResize);
-                handle.addEventListener('pointercancel', stopResize);
-                handle.addEventListener('pointerleave', stopResize);
-            
-                // backup برای document
-                document.addEventListener('pointerup', stopResize);
-            }
+				const panel = document.getElementById('preview-panel');
+				const handle = document.getElementById('preview-resize-handle');
+				let isResizing = false;
+				let startX, startWidth;
+			
+				const startResize = (e) => {
+					if (e.button !== 0) return; // فقط کلیک چپ
+			
+					isResizing = true;
+					startX = e.clientX;
+					startWidth = panel.offsetWidth;
+					panel.classList.add('resizing');
+					document.body.style.cursor = 'ew-resize';
+					document.body.style.userSelect = 'none';
+			
+					// اضافه کردن event listeners به document
+					document.addEventListener('pointermove', doResize);
+					document.addEventListener('pointerup', stopResize);
+			
+					e.preventDefault();
+				};
+			
+				const doResize = (e) => {
+					if (!isResizing) return;
+			
+					const diff = startX - e.clientX;
+					let newWidth = startWidth + diff;
+			
+					// محدودیت عرض
+					const minWidth = 300;
+					const maxWidth = Math.min(800, window.innerWidth * 0.6);
+					newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+			
+					panel.style.width = `${newWidth}px`;
+				};
+			
+				const stopResize = () => {
+					if (!isResizing) return;
+			
+					isResizing = false;
+					panel.classList.remove('resizing');
+					document.body.style.cursor = '';
+					document.body.style.userSelect = '';
+			
+					// حذف event listeners از document
+					document.removeEventListener('pointermove', doResize);
+					document.removeEventListener('pointerup', stopResize);
+				};
+			
+				// فقط event listener برای شروع کشیدن
+				handle.addEventListener('pointerdown', startResize);
+			}
         }
 
         // راه‌اندازی چت
