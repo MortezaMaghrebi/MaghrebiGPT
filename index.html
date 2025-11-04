@@ -48,6 +48,8 @@
             flex-direction: column;
             height: 100%;
             transition: transform 0.3s ease;
+            position: relative;
+            z-index: 100;
         }
 
         .sidebar-header {
@@ -155,6 +157,7 @@
             display: flex;
             flex-direction: column;
             height: 100%;
+            min-width: 0; /* برای جلوگیری از overflow */
         }
 
         .chat-header {
@@ -163,12 +166,15 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .header-controls {
             display: flex;
             align-items: center;
             gap: 12px;
+            flex-wrap: wrap;
         }
 
         .model-selector {
@@ -181,6 +187,7 @@
             cursor: pointer;
             font-size: 14px;
             background-color: white;
+            white-space: nowrap;
         }
 
         .model-selector:hover {
@@ -197,10 +204,26 @@
             cursor: pointer;
             font-size: 14px;
             background-color: white;
+            white-space: nowrap;
         }
         
         .direction-toggle:hover {
             background-color: #f9f9f9;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            color: var(--text-primary);
+        }
+        
+        .mobile-menu-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
         }
         
         .chat-messages {
@@ -263,6 +286,7 @@
             padding-top: 4px;
             line-height: 1.6;
             position: relative;
+            min-width: 0; /* برای جلوگیری از overflow */
         }
         
         .user .message-content {
@@ -283,12 +307,12 @@
             word-wrap: break-word;
         }
         
-        /* Message Actions - تغییرات اصلی اینجا */
+        /* Message Actions */
         .message-actions {
             display: flex;
             gap: 8px;
             margin-top: 8px;
-            opacity: 1; /* همیشه قابل مشاهده */
+            opacity: 1;
             position: absolute;
             bottom: -35px;
             left: 0;
@@ -329,14 +353,10 @@
             left: 8px;
             display: flex;
             gap: 4px;
-            opacity: 1; /* همیشه قابل مشاهده */
-									 
+            opacity: 1;
+            flex-wrap: wrap;
         }
         
-													   
-					   
-		 
-		
         .code-action-btn {
             background: var(--code-bg);
             border: 0px solid var(--border-color);
@@ -358,59 +378,59 @@
             border-color: white;
         }
         
-		/* Code Language Label */
-		.code-language-label {
-			position: absolute;
-			top: 8px;
-			right: 8px;
-			background: var(--code-bg);
-			color: black;
-			font-size: 11px;
-			font-weight: 600;
-			padding: 2px 6px;
-			border-radius: 3px;
-			text-transform: uppercase;
-			z-index: 1;
-			pointer-events: none;
-			font-family: 'Courier New', monospace;
-		}
-		
-		/* Preview Button */
-		.code-preview-btn {
-			background: #10a37f;
-			color: white;
-			border: none;
-			border-radius: 4px;
-			padding: 4px 8px;
-			font-size: 12px;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			gap: 4px;
-			margin-left: 4px;
-			transition: all 0.2s;
-		}
-		
-		.code-preview-btn:hover {
-			background: #0d8c6c;
-		}
-		
-		/* Preview Container */
-		.code-preview-container {
-			margin-top: 12px;
-			border: 1px solid var(--border-color);
-			border-radius: 6px;
-			overflow: hidden;
-			box-shadow: var(--shadow);
-		}
-		
-		.code-preview-iframe {
-			width: 100%;
-			height: 300px;
-			border: none;
-			background: white;
-			transition: height 0.2s ease;
-		}
+        /* Code Language Label */
+        .code-language-label {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--code-bg);
+            color: black;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            z-index: 1;
+            pointer-events: none;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Preview Button */
+        .code-preview-btn {
+            background: #10a37f;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 4px;
+            transition: all 0.2s;
+        }
+        
+        .code-preview-btn:hover {
+            background: #0d8c6c;
+        }
+        
+        /* Preview Container */
+        .code-preview-container {
+            margin-top: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        
+        .code-preview-iframe {
+            width: 100%;
+            height: 300px;
+            border: none;
+            background: white;
+            transition: height 0.2s ease;
+        }
 
         /* Markdown Styling */
         .message-content h1, 
@@ -463,6 +483,8 @@
             width: 100%;
             margin: 1em 0;
             font-size: 0.9em;
+            overflow-x: auto;
+            display: block;
         }
         
         .message-content th, 
@@ -493,17 +515,17 @@
             text-align: left;
         }
         
-		.message-content pre {
-			background-color: var(--code-bg);
-			border: 1px solid var(--code-border);
-			border-radius: 6px;
-			padding: 40px 10px 10px 10px;
-			overflow-x: auto;
-			margin: 1em 0;
-			direction: ltr;
-			text-align: left;
-			position: relative; /* اضافه شد */
-		}
+        .message-content pre {
+            background-color: var(--code-bg);
+            border: 1px solid var(--code-border);
+            border-radius: 6px;
+            padding: 40px 10px 10px 10px;
+            overflow-x: auto;
+            margin: 1em 0;
+            direction: ltr;
+            text-align: left;
+            position: relative;
+        }
         
         .message-content pre code {
             background: none;
@@ -637,15 +659,16 @@
             right: 0;
             bottom: 0;
             background-color: rgba(0, 0, 0, 0.5);
-            z-index: 100;
+            z-index: 1000;
             align-items: center;
             justify-content: center;
+            padding: 16px;
         }
 
         .model-modal-content {
             background-color: white;
             border-radius: 12px;
-            width: 90%;
+            width: 100%;
             max-width: 800px;
             max-height: 80vh;
             overflow-y: auto;
@@ -743,102 +766,121 @@
             outline: none;
             border-color: var(--primary-color);
         }
-		
-		
-		/* Preview Panel - سمت راست */
-		.preview-panel {
-			position: fixed;
-			top: 0;
-			right: -400px; /* مخفی در ابتدا */
-			width: 400px;
-			height: 100vh;
-			background: white;
-			border-left: 1px solid var(--border-color);
-			box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
-			z-index: 1000;
-			display: flex;
-			flex-direction: column;
-			transition: right 0.3s ease;
-			font-family: 'Segoe UI', sans-serif;
-		}
-		
-		.preview-panel.open {
-			right: 0;
-		}
-		
-		.preview-header {
-			padding: 12px 16px;
-			background: var(--primary-color);
-			color: white;
-			font-weight: 600;
-			font-size: 14px;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-		}
-		
-		.close-preview-btn {
-			background: none;
-			border: none;
-			color: white;
-			font-size: 18px;
-			cursor: pointer;
-			width: 32px;
-			height: 32px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			border-radius: 4px;
-		}
-		
-		.close-preview-btn:hover {
-			background: rgba(255, 255, 255, 0.2);
-		}
-		
-		.preview-resizer {
-			width: 100%;
-			height: 4px;
-			background: #e5e5e5;
-			cursor: ns-resize;
-		}
-		
-		.preview-content {
-			flex: 1;
-			overflow: hidden;
-		}
-		
-		#preview-iframe {
-			width: 100%;
-			height: 100%;
-			border: none;
-			background: white;
-		}
+        
+        /* Preview Panel - سمت راست */
+        .preview-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: white;
+            border-left: 1px solid var(--border-color);
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            transition: right 0.3s ease;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        
+        .preview-panel.open {
+            right: 0;
+        }
+        
+        .preview-header {
+            padding: 12px 16px;
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .close-preview-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+        
+        .close-preview-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .preview-resizer {
+            width: 100%;
+            height: 4px;
+            background: #e5e5e5;
+            cursor: ns-resize;
+        }
+        
+        .preview-content {
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        #preview-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
 
-		/* Handle برای تغییر اندازه */
-		.preview-resize-handle {
-			position: absolute;
-			left: 0;
-			top: 0;
-			width: 10px; /* کمی بیشتر برای راحتی */
-			height: 100%;
-			background: transparent;
-			cursor: ew-resize;
-			z-index: 1001;
-			transition: background 0.2s;
-			margin-left: -5px; /* وسط کردن handle */
-		}
-		
-		.preview-resize-handle:hover,
-		.preview-panel.resizing .preview-resize-handle {
-			background: var(--primary-color);
-		}
-		
+        /* Handle برای تغییر اندازه */
+        .preview-resize-handle {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 10px;
+            height: 100%;
+            background: transparent;
+            cursor: ew-resize;
+            z-index: 1001;
+            transition: background 0.2s;
+            margin-left: -5px;
+        }
+        
+        .preview-resize-handle:hover,
+        .preview-panel.resizing .preview-resize-handle {
+            background: var(--primary-color);
+        }
+        
+        /* Overlay برای موبایل */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .sidebar {
-                position: absolute;
-                z-index: 10;
+                position: fixed;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                width: 280px;
                 transform: translateX(100%);
+                z-index: 100;
             }
             
             .sidebar.open {
@@ -847,6 +889,105 @@
             
             .mobile-menu-btn {
                 display: block;
+            }
+            
+            .chat-header {
+                padding: 12px 16px;
+            }
+            
+            .header-controls {
+                gap: 8px;
+            }
+            
+            .model-selector, .direction-toggle {
+                font-size: 13px;
+                padding: 6px 10px;
+            }
+            
+            .chat-messages {
+                padding: 16px;
+                gap: 40px;
+            }
+            
+            .message {
+                gap: 12px;
+            }
+            
+            .message-avatar {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+            
+            .message-content {
+                padding: 12px;
+                font-size: 14px;
+            }
+            
+            .chat-input-container {
+                padding: 16px;
+            }
+            
+            .model-modal-body {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+            
+            .model-modal-header {
+                padding: 16px;
+            }
+            
+            .preview-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .chat-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .header-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .message {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .user .message-content {
+                border-top-right-radius: 8px;
+            }
+            
+            .assistant .message-content {
+                border-top-left-radius: 8px;
+            }
+            
+            .message-actions {
+                position: static;
+                margin-top: 12px;
+                justify-content: flex-start;
+            }
+            
+            .code-block-actions {
+                position: static;
+                margin-bottom: 8px;
+                justify-content: flex-start;
+            }
+            
+            .code-language-label {
+                position: static;
+                display: inline-block;
+                margin-bottom: 8px;
+            }
+            
+            .message-content pre {
+                padding: 16px 10px 10px 10px;
             }
         }
 
@@ -871,8 +1012,11 @@
     </style>
 </head>
 <body>
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="logo">MG</div>
             <div>Maghrebi GPT</div>
@@ -882,7 +1026,6 @@
             <i class="fas fa-plus"></i>
             چت جدید
         </button>
-        
         
         <div class="chat-history" id="chat-history">
             <!-- تاریخچه چت ها به صورت داینامیک ساخته می شود -->
@@ -902,13 +1045,16 @@
     <!-- Main Chat Area -->
     <div class="chat-container">
         <div class="chat-header">
+            <button class="mobile-menu-btn" id="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
             <div class="header-controls">
                 <div class="model-selector" id="model-selector">
-					<i class="fas fa-robot"></i>
-					<span>OpenAI GPT OSS 120B</span>  <!-- نام مدل رو بروز کن -->
-					<i class="fas fa-chevron-down"></i>
-				</div>
-				<div class="direction-toggle" id="direction-toggle">
+                    <i class="fas fa-robot"></i>
+                    <span>OpenAI GPT OSS 120B</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="direction-toggle" id="direction-toggle">
                     <i class="fas fa-text-width"></i>
                     <span>راست‌چین</span>
                 </div>
@@ -956,7 +1102,7 @@
             </div>
             <div class="model-modal-body">
                 <!-- Production Models -->
-				<div class="model-option active" data-model="openai/gpt-oss-120b">
+                <div class="model-option active" data-model="openai/gpt-oss-120b">
                     <div class="model-icon" style="background-color: #8b5cf6; color: white;">
                         <i class="fas fa-database"></i>
                     </div>
@@ -996,7 +1142,6 @@
                     <div class="model-info">امنیتی • 1200 T/S • $0.20/M</div>
                 </div>
                 
-                 
                 <!-- Preview Models -->
                 <div class="model-option" data-model="meta-llama/llama-4-maverick-17b-128e-instruct">
                     <div class="model-icon" style="background-color: #ec4899; color: white;">
@@ -1049,20 +1194,20 @@
             </div>
         </div>
     </div>
-	
-	<div class="preview-panel" id="preview-panel">
-		<div class="preview-resize-handle" id="preview-resize-handle"></div>
-		<div class="preview-header">
-			<span>پیش‌نمایش</span>
-			<button class="close-preview-btn" id="close-preview-btn">
-				<i class="fas fa-times"></i>
-			</button>
-		</div>
-		<div class="preview-content">
-			<iframe id="preview-iframe" sandbox="allow-scripts allow-modals allow-forms allow-popups"></iframe>
-		</div>
-	</div>
-	
+    
+    <div class="preview-panel" id="preview-panel">
+        <div class="preview-resize-handle" id="preview-resize-handle"></div>
+        <div class="preview-header">
+            <span>پیش‌نمایش</span>
+            <button class="close-preview-btn" id="close-preview-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="preview-content">
+            <iframe id="preview-iframe" sandbox="allow-scripts allow-modals allow-forms allow-popups"></iframe>
+        </div>
+    </div>
+    
     <script>
         class MaghrebiGPT {
             constructor() {
@@ -1072,7 +1217,7 @@
                 this.currentConversationId = this.generateId();
                 this.textDirection = 'rtl'; // پیش‌فرض راست‌چین
                 this.initializeEventListeners();
-				this.setupPreviewResize();
+                this.setupPreviewResize();
                 this.updateModelSelector();
                 this.loadConversations();
                 this.renderConversationHistory();
@@ -1089,50 +1234,50 @@
                     breaks: true,
                     gfm: true
                 });
-				
-				// بستن پنل
-				document.getElementById('close-preview-btn').addEventListener('click', () => {
-					const panel = document.getElementById('preview-panel');
-					const iframe = document.getElementById('preview-iframe');
-				
-					// 1. مخفی کردن پنل
-					panel.classList.remove('open');
-				
-					// 2. پاک کردن محتوای iframe
-					iframe.src = 'about:blank';
-				
-					// 3. پاک کردن DOM (اختیاری اما بهتر)
-					setTimeout(() => {
-						iframe.src = '';
-						iframe.contentDocument?.write('');
-						iframe.contentDocument?.close();
-					}, 300);
-				});
-				
-				// Resizer (کشیدن برای تغییر ارتفاع header)
-				let isResizing = false;
-				const resizer = document.getElementById('preview-resizer');
-				
-				resizer.addEventListener('mousedown', (e) => {
-					isResizing = true;
-					document.body.style.userSelect = 'none';
-				});
-				
-				document.addEventListener('mousemove', (e) => {
-					if (!isResizing) return;
-					const panel = document.getElementById('preview-panel');
-					const headerHeight = e.clientY;
-					if (headerHeight > 100 && headerHeight < window.innerHeight - 100) {
-						panel.style.top = '0';
-						panel.style.height = '100vh';
-						// اگر خواستی فقط header تغییر کنه، اینجا تنظیم کن
-					}
-				});
-				
-				document.addEventListener('mouseup', () => {
-					isResizing = false;
-					document.body.style.userSelect = '';
-				});
+                
+                // بستن پنل
+                document.getElementById('close-preview-btn').addEventListener('click', () => {
+                    const panel = document.getElementById('preview-panel');
+                    const iframe = document.getElementById('preview-iframe');
+                
+                    // 1. مخفی کردن پنل
+                    panel.classList.remove('open');
+                
+                    // 2. پاک کردن محتوای iframe
+                    iframe.src = 'about:blank';
+                
+                    // 3. پاک کردن DOM (اختیاری اما بهتر)
+                    setTimeout(() => {
+                        iframe.src = '';
+                        iframe.contentDocument?.write('');
+                        iframe.contentDocument?.close();
+                    }, 300);
+                });
+                
+                // Resizer (کشیدن برای تغییر ارتفاع header)
+                let isResizing = false;
+                const resizer = document.getElementById('preview-resizer');
+                
+                resizer.addEventListener('mousedown', (e) => {
+                    isResizing = true;
+                    document.body.style.userSelect = 'none';
+                });
+                
+                document.addEventListener('mousemove', (e) => {
+                    if (!isResizing) return;
+                    const panel = document.getElementById('preview-panel');
+                    const headerHeight = e.clientY;
+                    if (headerHeight > 100 && headerHeight < window.innerHeight - 100) {
+                        panel.style.top = '0';
+                        panel.style.height = '100vh';
+                        // اگر خواستی فقط header تغییر کنه، اینجا تنظیم کن
+                    }
+                });
+                
+                document.addEventListener('mouseup', () => {
+                    isResizing = false;
+                    document.body.style.userSelect = '';
+                });
             }
 
             generateId() {
@@ -1189,26 +1334,63 @@
 
                 // فokus خودکار روی اینپوت
                 document.getElementById('chat-input').focus();
-				
-				document.getElementById('close-preview-btn').addEventListener('click', () => {
-					const panel = document.getElementById('preview-panel');
-					const iframe = document.getElementById('preview-iframe');
-				
-					// 1. مخفی کردن پنل
-					panel.classList.remove('open');
-				
-					// 2. پاک کردن محتوای iframe
-					iframe.src = 'about:blank';
-				
-					// 3. پاکسازی کامل DOM و حافظه (بعد از انیمیشن)
-					setTimeout(() => {
-						iframe.src = '';
-						if (iframe.contentDocument) {
-							iframe.contentDocument.write('');
-							iframe.contentDocument.close();
-						}
-					}, 350); // کمی بیشتر از زمان انیمیشن (0.3s)
-				});
+                
+                document.getElementById('close-preview-btn').addEventListener('click', () => {
+                    const panel = document.getElementById('preview-panel');
+                    const iframe = document.getElementById('preview-iframe');
+                
+                    // 1. مخفی کردن پنل
+                    panel.classList.remove('open');
+                
+                    // 2. پاک کردن محتوای iframe
+                    iframe.src = 'about:blank';
+                
+                    // 3. پاکسازی کامل DOM و حافظه (بعد از انیمیشن)
+                    setTimeout(() => {
+                        iframe.src = '';
+                        if (iframe.contentDocument) {
+                            iframe.contentDocument.write('');
+                            iframe.contentDocument.close();
+                        }
+                    }, 350); // کمی بیشتر از زمان انیمیشن (0.3s)
+                });
+                
+                // منوی موبایل
+                document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+                    this.toggleMobileSidebar();
+                });
+                
+                // بستن سایدبار موبایل با کلیک روی overlay
+                document.getElementById('sidebar-overlay').addEventListener('click', () => {
+                    this.toggleMobileSidebar(false);
+                });
+                
+                // بستن سایدبار موبایل با کلیک روی لینک‌ها
+                document.getElementById('chat-history').addEventListener('click', (e) => {
+                    if (e.target.closest('.chat-history-item')) {
+                        this.toggleMobileSidebar(false);
+                    }
+                });
+            }
+            
+            toggleMobileSidebar(show) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebar-overlay');
+                
+                if (show === undefined) {
+                    // toggle
+                    sidebar.classList.toggle('open');
+                    overlay.classList.toggle('active');
+                } else {
+                    // set specific state
+                    if (show) {
+                        sidebar.classList.add('open');
+                        overlay.classList.add('active');
+                    } else {
+                        sidebar.classList.remove('open');
+                        overlay.classList.remove('active');
+                    }
+                }
             }
 
             toggleTextDirection() {
@@ -1257,6 +1439,9 @@
                 
                 this.renderConversationHistory();
                 document.getElementById('chat-input').focus();
+                
+                // بستن سایدبار در موبایل
+                this.toggleMobileSidebar(false);
             }
 
             saveCurrentConversation() {
@@ -1418,13 +1603,13 @@
 
                 console.log('Sending request to Groq API...');
                 console.log('Model:', this.currentModel);
-					
-				//CloudFlare Worjer
+                    
+                //CloudFlare Worjer
                 const response = await fetch('https://maghrebi-gpt-backend.maghrebimorteza.workers.dev/', {  // این URL را بعداً جایگزین کنید
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify(requestBody)  // requestBody همان قبلی است، اما بدون Authorization (چون backend اضافه می‌کند)
-				});
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)  // requestBody همان قبلی است، اما بدون Authorization (چون backend اضافه می‌کند)
+                });
 
                 if (!response.ok) {
                     let errorMessage = `خطا: ${response.status}`;
@@ -1489,71 +1674,71 @@
                 
                 // اضافه کردن دکمه‌های کپی و دانلود برای بلوک‌های کد
                 if (renderMarkdown) {
-					setTimeout(() => {
-						const self = this; // برای دسترسی به this در onclick
-				
-						messageDiv.querySelectorAll('pre').forEach((preBlock) => {
-							// ایجاد wrapper و actions
-							const wrapper = document.createElement('div');
-							wrapper.className = 'code-block-wrapper';
-				
-							const actions = document.createElement('div');
-							actions.className = 'code-block-actions';
-							actions.innerHTML = `
-								<button class="code-action-btn" data-action="copy-code">
-									<i class="fas fa-copy"></i> کپی
-								</button>
-								<button class="code-action-btn" data-action="download-code">
-									<i class="fas fa-download"></i> دانلود
-								</button>
-							`;
-				
-							// قرار دادن pre داخل wrapper
-							preBlock.parentNode.insertBefore(wrapper, preBlock);
-							wrapper.appendChild(preBlock);
-							wrapper.appendChild(actions);
-				
-							// پیدا کردن code داخل pre
-							const codeBlock = preBlock.querySelector('code');
-							if (!codeBlock) return;
-				
-							// --- نمایش زبان کد ---
-							const languageMatch = codeBlock.className.match(/language-(\w+)/);
-							if (languageMatch && !preBlock.querySelector('.code-language-label')) {
-								const language = languageMatch[1].toUpperCase();
-								const label = document.createElement('div');
-								label.className = 'code-language-label';
-								label.textContent = language;
-								preBlock.style.position = 'relative';
-								preBlock.insertBefore(label, preBlock.firstChild);
-							}
-				
-							// --- دکمه Preview برای HTML ---
-							const isHTML = codeBlock.classList.contains('language-html') || codeBlock.classList.contains('language-xml');
-							const codeText = codeBlock.textContent.trim();
-							const isFullHTML = codeText.match(/^<!DOCTYPE html>|^<html|^<div|^<body/i);
-				
-							if (isHTML && isFullHTML) {
-								const previewBtn = document.createElement('button');
-								previewBtn.className = 'code-action-btn code-preview-btn';
-								previewBtn.innerHTML = '<i class="fas fa-eye"></i> Preview';
-								previewBtn.onclick = (e) => {
-									e.stopPropagation();
-									self.showHTMLPreview(codeText);
-								};
-								actions.appendChild(previewBtn);
-							}
-				
-							// highlight کد
-							hljs.highlightElement(codeBlock);
-						});
-				
-						// اضافه کردن event listenerها
-						this.addActionEventListeners(messageDiv);
-					}, 100);
-				} else {
-					this.addActionEventListeners(messageDiv);
-				}
+                    setTimeout(() => {
+                        const self = this; // برای دسترسی به this در onclick
+                
+                        messageDiv.querySelectorAll('pre').forEach((preBlock) => {
+                            // ایجاد wrapper و actions
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'code-block-wrapper';
+                
+                            const actions = document.createElement('div');
+                            actions.className = 'code-block-actions';
+                            actions.innerHTML = `
+                                <button class="code-action-btn" data-action="copy-code">
+                                    <i class="fas fa-copy"></i> کپی
+                                </button>
+                                <button class="code-action-btn" data-action="download-code">
+                                    <i class="fas fa-download"></i> دانلود
+                                </button>
+                            `;
+                
+                            // قرار دادن pre داخل wrapper
+                            preBlock.parentNode.insertBefore(wrapper, preBlock);
+                            wrapper.appendChild(preBlock);
+                            wrapper.appendChild(actions);
+                
+                            // پیدا کردن code داخل pre
+                            const codeBlock = preBlock.querySelector('code');
+                            if (!codeBlock) return;
+                
+                            // --- نمایش زبان کد ---
+                            const languageMatch = codeBlock.className.match(/language-(\w+)/);
+                            if (languageMatch && !preBlock.querySelector('.code-language-label')) {
+                                const language = languageMatch[1].toUpperCase();
+                                const label = document.createElement('div');
+                                label.className = 'code-language-label';
+                                label.textContent = language;
+                                preBlock.style.position = 'relative';
+                                preBlock.insertBefore(label, preBlock.firstChild);
+                            }
+                
+                            // --- دکمه Preview برای HTML ---
+                            const isHTML = codeBlock.classList.contains('language-html') || codeBlock.classList.contains('language-xml');
+                            const codeText = codeBlock.textContent.trim();
+                            const isFullHTML = codeText.match(/^<!DOCTYPE html>|^<html|^<div|^<body/i);
+                
+                            if (isHTML && isFullHTML) {
+                                const previewBtn = document.createElement('button');
+                                previewBtn.className = 'code-action-btn code-preview-btn';
+                                previewBtn.innerHTML = '<i class="fas fa-eye"></i> Preview';
+                                previewBtn.onclick = (e) => {
+                                    e.stopPropagation();
+                                    self.showHTMLPreview(codeText);
+                                };
+                                actions.appendChild(previewBtn);
+                            }
+                
+                            // highlight کد
+                            hljs.highlightElement(codeBlock);
+                        });
+                
+                        // اضافه کردن event listenerها
+                        this.addActionEventListeners(messageDiv);
+                    }, 100);
+                } else {
+                    this.addActionEventListeners(messageDiv);
+                }
             }
 
             addActionEventListeners(messageDiv) {
@@ -1668,90 +1853,88 @@
                 const messagesContainer = document.getElementById('chat-messages');
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
-			
-			showHTMLPreview(htmlCode) {
-				const panel = document.getElementById('preview-panel');
-				const iframe = document.getElementById('preview-iframe');
-			
-				// باز کردن پنل
-				panel.classList.add('open');
-			
-				// تنظیم عرض اولیه
-				if (!panel.style.width || panel.style.width === '400px') {
-					panel.style.width = '500px';
-				}
-			
-				// ایجاد Blob و بارگذاری
-				const blob = new Blob([htmlCode], { type: 'text/html' });
-				const url = URL.createObjectURL(blob);
-				iframe.src = url;
-			
-				// پاکسازی URL بعد از بارگذاری
-				iframe.onload = () => {
-					URL.revokeObjectURL(url);
-				};
-			}
-			
-			setupPreviewResize() {
-				const panel = document.getElementById('preview-panel');
-				const handle = document.getElementById('preview-resize-handle');
-				let isResizing = false;
-				let startX, startWidth;
-			
-				const startResize = (e) => {
-					if (e.button !== 0) return; // فقط کلیک چپ
-			
-					isResizing = true;
-					startX = e.clientX;
-					startWidth = panel.offsetWidth;
-					panel.classList.add('resizing');
-					document.body.style.cursor = 'ew-resize';
-					document.body.style.userSelect = 'none';
-			
-					// مهم: capture pointer
-					handle.setPointerCapture(e.pointerId);
-			
-					e.preventDefault();
-				};
-			
-				const doResize = (e) => {
-					if (!isResizing) return;
-			
-					const diff = startX - e.clientX;
-					let newWidth = startWidth + diff;
-			
-					// محدودیت عرض
-					const minWidth = 300;
-					const maxWidth = Math.min(800, window.innerWidth * 0.6);
-					newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
-			
-					panel.style.width = `${newWidth}px`;
-				};
-			
-				const stopResize = () => {
-					if (!isResizing) return;
-			
-					isResizing = false;
-					panel.classList.remove('resizing');
-					document.body.style.cursor = '';
-					document.body.style.userSelect = '';
-			
-					// آزاد کردن capture
-					handle.releasePointerCapture?.(handle.pointerId);
-				};
-			
-				// استفاده از pointer events
-				handle.addEventListener('pointerdown', startResize);
-				handle.addEventListener('pointermove', doResize);
-				handle.addEventListener('pointerup', stopResize);
-				handle.addEventListener('pointercancel', stopResize);
-				handle.addEventListener('pointerleave', stopResize);
-			
-				// backup برای document
-				document.addEventListener('pointerup', stopResize);
-			}
-			
-			
+            
+            showHTMLPreview(htmlCode) {
+                const panel = document.getElementById('preview-panel');
+                const iframe = document.getElementById('preview-iframe');
+            
+                // باز کردن پنل
+                panel.classList.add('open');
+            
+                // تنظیم عرض اولیه
+                if (!panel.style.width || panel.style.width === '400px') {
+                    panel.style.width = '500px';
+                }
+            
+                // ایجاد Blob و بارگذاری
+                const blob = new Blob([htmlCode], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                iframe.src = url;
+            
+                // پاکسازی URL بعد از بارگذاری
+                iframe.onload = () => {
+                    URL.revokeObjectURL(url);
+                };
+            }
+            
+            setupPreviewResize() {
+                const panel = document.getElementById('preview-panel');
+                const handle = document.getElementById('preview-resize-handle');
+                let isResizing = false;
+                let startX, startWidth;
+            
+                const startResize = (e) => {
+                    if (e.button !== 0) return; // فقط کلیک چپ
+            
+                    isResizing = true;
+                    startX = e.clientX;
+                    startWidth = panel.offsetWidth;
+                    panel.classList.add('resizing');
+                    document.body.style.cursor = 'ew-resize';
+                    document.body.style.userSelect = 'none';
+            
+                    // مهم: capture pointer
+                    handle.setPointerCapture(e.pointerId);
+            
+                    e.preventDefault();
+                };
+            
+                const doResize = (e) => {
+                    if (!isResizing) return;
+            
+                    const diff = startX - e.clientX;
+                    let newWidth = startWidth + diff;
+            
+                    // محدودیت عرض
+                    const minWidth = 300;
+                    const maxWidth = Math.min(800, window.innerWidth * 0.6);
+                    newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+            
+                    panel.style.width = `${newWidth}px`;
+                };
+            
+                const stopResize = () => {
+                    if (!isResizing) return;
+            
+                    isResizing = false;
+                    panel.classList.remove('resizing');
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+            
+                    // آزاد کردن capture
+                    handle.releasePointerCapture?.(handle.pointerId);
+                };
+            
+                // استفاده از pointer events
+                handle.addEventListener('pointerdown', startResize);
+                handle.addEventListener('pointermove', doResize);
+                handle.addEventListener('pointerup', stopResize);
+                handle.addEventListener('pointercancel', stopResize);
+                handle.addEventListener('pointerleave', stopResize);
+            
+                // backup برای document
+                document.addEventListener('pointerup', stopResize);
+            }
         }
 
         // راه‌اندازی چت
