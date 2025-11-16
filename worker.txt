@@ -1,60 +1,130 @@
 export default {
-  async fetch(request, env, ctx) {
-    const corsHeaders = {
-      'Access-Control-Allow-Origin': 'https://mortezamaghrebi.github.io',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Max-Age': '86400',
-    };
-
-    // هندل کردن درخواست OPTIONS (Preflight)
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { headers: corsHeaders });
-    }
-
-    // فقط POST مجاز است
-    if (request.method !== 'POST') {
-      return new Response('Method Not Allowed', { status: 405, headers: corsHeaders });
-    }
-
-    try {
-      const body = await request.json();
-
-      // استفاده از SECRET به جای هاردکد
-      const apiKey = env.GROQ_API_KEY;
-
-      if (!apiKey) {
-        return new Response(JSON.stringify({ error: 'API key is missing' }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
-
-      const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-      });
-
-      const groqData = await groqResponse.json();
-
-      return new Response(JSON.stringify(groqData), {
-        status: groqResponse.status,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        }
-      });
-
-    } catch (error) {
-      console.error('Worker error:', error); // لاگ برای دیباگ
-      return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
-  }
-};
+	async fetch(request, env, ctx) {
+	  const FRONTEND_ORIGIN = "https://mortezamaghrebi.github.io";
+	  const PUBLIC_ACCESS_TOKEN = "MG-ACCESS-2025";
+	  const MAX_TOKENS = 4096;
+  
+	  const ALLOWED_MODELS = [
+		"openai/gpt-oss-120b",
+		"openai/gpt-oss-20b",
+		"llama-3.1-8b-instant",
+		"llama-3.3-70b-versatile",
+		"meta-llama/llama-guard-4-12b",
+		"meta-llama/llama-4-maverick-17b-128e-instruct",
+		"meta-llama/llama-4-scout-17b-16e-instruct",
+		"qwen/qwen3-32b",
+		"moonshotai/kimi-k2-instruct-0905",
+		"groq/compound",
+		"groq/compound-mini",
+		"llama3-70b-8192",
+		"llama3-8b-8192",
+		"mixtral-8x7b-32768",
+		"gemma2-9b-it",
+		"gemma-7b-it"
+	  ];
+  
+	  // هدرهای CORS رو همیشه اول تعریف کن (حتی در خطاها)
+	  const corsHeaders = {
+		"Access-Control-Allow-Origin": FRONTEND_ORIGIN,
+		"Access-Control-Allow-Methods": "POST, OPTIONS",
+		"Access-Control-Allow-Headers": "Content-Type, x-public-access",
+		"Access-Control-Max-Age": "86400",
+	  };
+  
+	  // Preflight – همیشه جواب بده
+	  if (request.method === "OPTIONS") {
+		return new Response(null, { headers: corsHeaders });
+	  }
+  
+	  if (request.method !== "POST") {
+		return new Response("Method Not Allowed", { status: 405, headers: corsHeaders });
+	  }
+  
+	  // چک توکن
+	  if (request.headers.get("x-public-access") !== PUBLIC_ACCESS_TOKEN) {
+		return new Response("Unauthorized", { status: 401, headers: corsHeaders });
+	  }
+  
+	  // پارس بدنه
+	  let body;
+	  try {
+		const text = await request.text();
+		if (text.length > 35000) {
+		  return new Response("Payload too large", { status: 413, headers: corsHeaders });
+		}
+		body = JSON.parse(text);
+	  } catch (e) {
+		return new Response("Invalid JSON", { status: 400, headers: corsHeaders });
+	  }
+  
+	  // چک مدل
+	  if (!body.model || !ALLOWED_MODELS.includes(body.model)) {
+		return new Response(JSON.stringify({ error: "Model not allowed" }), {
+		  status: 403,
+		  headers: { ...corsHeaders, "Content-Type": "application/json" }
+		});
+	  }
+  
+	  if (body.max_tokens && body.max_tokens > MAX_TOKENS) {
+		body.max_tokens = MAX_TOKENS;
+	  }
+  
+	  // ←←←← این بخش جدید و ضدکرش (مهم‌ترین تغییر!)
+	  let rateLimited = false;
+	  if (env.RATELIMIT) {  // فقط اگه KV وجود داشته باشه اجرا بشه
+		try {
+		  const ip = request.headers.get("cf-connecting-ip") || "unknown";
+		  const rateKey = `rl_${ip}`;
+		  let count = await env.RATELIMIT.get(rateKey);
+		  count = count ? parseInt(count, 10) : 0;
+  
+		  if (count >= 60) {
+			rateLimited = true;
+		  } else {
+			ctx.waitUntil(env.RATELIMIT.put(rateKey, (count + 1).toString(), { expirationTtl: 70 }));
+		  }
+		} catch (err) {
+		  console.error("Rate limit error (ignored):", err);
+		  // اگه KV مشکل داشت، ادامه بده (کرش نکن!)
+		}
+	  }
+  
+	  if (rateLimited) {
+		return new Response("Too Many Requests – ۶۰ درخواست در دقیقه", {
+		  status: 429,
+		  headers: corsHeaders
+		});
+	  }
+	  // ←←←← تا اینجا
+  
+	  const apiKey = env.GROQ_API_KEY;
+	  if (!apiKey) {
+		return new Response("Server error", { status: 500, headers: corsHeaders });
+	  }
+  
+	  const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+		method: "POST",
+		headers: {
+		  "Authorization": `Bearer ${apiKey}`,
+		  "Content-Type": "application/json"
+		},
+		body: JSON.stringify(body)
+	  });
+  
+	  const responseText = await groqResponse.text();
+	  let data;
+	  try {
+		data = JSON.parse(responseText);
+	  } catch (e) {
+		data = { error: { message: "Groq invalid response", raw: responseText.substring(0, 500) } };
+	  }
+  
+	  return new Response(JSON.stringify(data), {
+		status: groqResponse.status,
+		headers: {
+		  ...corsHeaders,
+		  "Content-Type": "application/json"
+		}
+	  });
+	}
+  };

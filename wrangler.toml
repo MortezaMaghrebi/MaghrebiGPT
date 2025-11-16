@@ -1,0 +1,7 @@
+name = "maghrebi-gpt-backend"
+main = "src/index.js"
+compatibility_date = "2025-11-16"
+
+[[kv_namespaces]]
+binding = "RATELIMIT"                  # اسم دقیقاً همونی که تو داشبورد ساختی
+id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  # ← اینجا id واقعی خودت رو بذار
