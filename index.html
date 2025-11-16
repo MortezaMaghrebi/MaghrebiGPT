@@ -1588,8 +1588,11 @@
                 //CloudFlare Worjer
                 const response = await fetch('https://maghrebi-gpt-backend.maghrebimorteza.workers.dev/', {  // این URL را بعداً جایگزین کنید
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestBody)  // requestBody همان قبلی است، اما بدون Authorization (چون backend اضافه می‌کند)
+                    headers: { 
+						'Content-Type': 'application/json',
+						'x-public-access': 'MG-ACCESS-2025' // IMPORTANT
+					},
+					body: JSON.stringify(requestBody)  // requestBody همان قبلی است، اما بدون Authorization (چون backend اضافه می‌کند)
                 });
 
                 if (!response.ok) {
